@@ -4,8 +4,8 @@ from Grid import Grid
 
 # define pg parameters
 pg.init()
-SCREEN_WIDTH = 1024
-SCREEN_HEIGHT = 768
+SCREEN_WIDTH = 1400
+SCREEN_HEIGHT = 700
 screen = pg.display.set_mode((SCREEN_HEIGHT, SCREEN_WIDTH))
 
 if __name__ == '__main__':
@@ -14,16 +14,27 @@ if __name__ == '__main__':
 
     x0, y0 = 10, 10
 
-    setup_grid = np.array(
-        [['w', 'a', '', '', 'e', 'd'],
-        ['a', 'l', '', 'a', '', 'o'],
-        ['s', 'e', 'd', 'g', 'e', 's'], 
-        ['', 'e', '', '' , '', ''],
-        ['e', 'r', 'a', 's', 'e', 'd'],
-        ['r', 'a', 'p', 'p', 'e', 'r'],
-        ['s', '', 'p', 'a', 'p', '']])
+    word_grid = np.array([
+        ['bingewatch  esa'],
+        ['escaperoom evil'],
+        ['deathtraps maxi'], 
+        ['seas nada pants'],
+        ['    pay relight'],
+        ['ohstop females '],
+        ['recut sonic lee'],
+        ['earthshattering'],
+        ['ode opals bossa'],
+        [' healers looted'],
+        ['sundeck sos    '],
+        ['antes nacl bmws'],
+        ['utep makeitrain'],
+        ['nest idontwanna'],
+        ['art  containing']
+        ])
 
-    sample_grid = Grid(setup_grid, x0, y0)
+    letter_grid = np.apply_along_axis(lambda x:list(x[0]), 1, word_grid)
+
+    sample_grid = Grid(letter_grid, x0, y0)
 
     while not done:
         for event in pg.event.get():

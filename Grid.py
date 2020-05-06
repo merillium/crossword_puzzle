@@ -4,20 +4,15 @@ from itertools import cycle
 from Tile import Tile
 
 pg.init()
-SCREEN_WIDTH = 1024
-SCREEN_HEIGHT = 768
-TILE_SIZE = 50
+SCREEN_WIDTH = 1400
+SCREEN_HEIGHT = 900
 COLOR_BLANK_TILE = pg.Color('black')
 COLOR_INACTIVE_TILE = pg.Color('white')
 
 # purple for active tile, light purple for active word
 COLOR_ACTIVE_TILE = pg.Color(154,0,255)
 COLOR_ACTIVE_WORD = pg.Color(213,149,255)
-TEXT_COLOR = pg.Color('black')
-INCORRECT_COLOR = pg.Color('red')
-BORDER_COLOR = pg.Color('black')
-BORDER_WIDTH = 1
-FONT = pg.font.Font(None, TILE_SIZE)
+
 screen = pg.display.set_mode((SCREEN_HEIGHT, SCREEN_WIDTH))
 
 # tile_grid is 2D array of Tiles (represented by characters below):
@@ -89,11 +84,21 @@ class Grid:
     def buildGrid(self, letter_grid):
         # might consider vectorization for readability
         # each tile has a (x,y) position 
+        TILE_SIZE = int(min(0.75*SCREEN_HEIGHT/self.nrows, 0.75*SCREEN_WIDTH/self.ncols))
+
         for i,j in loop_through_grid(self.nrows, self.ncols):
-            self.tile_grid[i][j] = Tile(
-                x=self.x_start+j*TILE_SIZE, 
-                y=self.y_start+i*TILE_SIZE, 
-                actual_letter=letter_grid[i][j])
+            if letter_grid[i][j] == ' ':
+                self.tile_grid[i][j] = Tile(
+                    x=self.x_start+j*TILE_SIZE, 
+                    y=self.y_start+i*TILE_SIZE, 
+                    tile_size=TILE_SIZE,
+                    actual_letter='')
+            else:
+                self.tile_grid[i][j] = Tile(
+                    x=self.x_start+j*TILE_SIZE, 
+                    y=self.y_start+i*TILE_SIZE, 
+                    tile_size=TILE_SIZE,
+                    actual_letter=letter_grid[i][j])
         self.setTileDirections()
         self.setNumbers()
         # self.printTiles()
@@ -188,7 +193,7 @@ class Grid:
                             self.tile_grid[i][j].set_num_surface()
                             number += 1
                         else:
-                            print("How did we get to this line? Debug.")
+                            continue
 
                     # for last column, only need to test vertical tile below
                     elif j == self.ncols - 1:
@@ -269,7 +274,7 @@ class Grid:
                         self.tile_grid[i][j].number = str(number)
                         self.tile_grid[i][j].set_num_surface()
                         number += 1
-                    if (self.tile_grid[i-1][j].actual_letter == '') and self.tile_grid[i+1][j].is_vertical:
+                    elif (self.tile_grid[i-1][j].actual_letter == '') and self.tile_grid[i+1][j].is_vertical:
                         self.tile_grid[i][j].number = str(number)
                         self.tile_grid[i][j].set_num_surface()
                         number += 1
