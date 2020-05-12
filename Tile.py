@@ -3,8 +3,8 @@ import pygame as pg
 
 # define pg parameters
 pg.init()
-SCREEN_WIDTH = 1400
-SCREEN_HEIGHT = 700
+SCREEN_WIDTH = 1800
+SCREEN_HEIGHT = 900
 COLOR_BLANK_TILE = pg.Color('black')
 COLOR_INACTIVE_TILE = pg.Color('white')
 COLOR_ACTIVE_TILE = pg.Color(154,0,255)
@@ -13,7 +13,6 @@ TEXT_COLOR = pg.Color('black')
 INCORRECT_COLOR = pg.Color('red')
 BORDER_COLOR = pg.Color('black')
 BORDER_WIDTH = 1
-
 
 screen = pg.display.set_mode((SCREEN_HEIGHT, SCREEN_WIDTH))
 
@@ -56,17 +55,17 @@ class Tile:
             # If the user clicked into the tile
             if self.rect.collidepoint(event.pos):
                 # Toggle the active variable.
-                print('you clicked on the tile', self.actual_letter)
+                # print('you clicked on the tile', self.actual_letter)
                 self.active = True
             else:
                 self.active = False
             # Change the color of the background
             if self.word_active:
                 if self.active:
-                    print('Letter', self.actual_letter, 'is active')
+                    # print('Letter', self.actual_letter, 'is active')
                     self.background_color = COLOR_ACTIVE_TILE
                 else:
-                    print('Letter', self.actual_letter, 'is inactive')
+                    # print('Letter', self.actual_letter, 'is inactive')
                     self.background_color = COLOR_ACTIVE_WORD
             else:
                 self.background_color = COLOR_INACTIVE_TILE
@@ -89,7 +88,8 @@ class Tile:
 
     # if the letter is wrong, it rerenders the color of the letter to red
     def check(self):
-        if self.disp_letter != self.actual_letter:
-            self.txt_surface = self.font.render(self.disp_letter, True, INCORRECT_COLOR)
-        else:
+        if self.disp_letter.capitalize() == self.actual_letter.capitalize():
             self.txt_surface = self.font.render(self.disp_letter, True, TEXT_COLOR)
+        else:
+            self.txt_surface = self.font.render(self.disp_letter, True, INCORRECT_COLOR)
+            

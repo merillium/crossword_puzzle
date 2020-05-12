@@ -4,7 +4,7 @@ from itertools import cycle
 from Tile import Tile
 
 pg.init()
-SCREEN_WIDTH = 1400
+SCREEN_WIDTH = 2000
 SCREEN_HEIGHT = 900
 COLOR_BLANK_TILE = pg.Color('black')
 COLOR_INACTIVE_TILE = pg.Color('white')
@@ -66,7 +66,8 @@ def cycle_grid_vertically(m_end, n_end, m_start = 0, n_start = 0, backwards = Fa
         return cycle(grid_list)
 
 class Grid:
-    def __init__(self, letter_grid, x_start = 0, y_start = 0):
+    def __init__(self, letter_grid, grid_screen_ratio=0.7, x_start=0, y_start=0):
+        self.grid_screen_ratio = grid_screen_ratio
         self.x_start = x_start
         self.y_start = y_start
         self.nrows = letter_grid.shape[0]
@@ -84,7 +85,7 @@ class Grid:
     def buildGrid(self, letter_grid):
         # might consider vectorization for readability
         # each tile has a (x,y) position 
-        TILE_SIZE = int(min(0.75*SCREEN_HEIGHT/self.nrows, 0.75*SCREEN_WIDTH/self.ncols))
+        TILE_SIZE = int(min(self.grid_screen_ratio*SCREEN_HEIGHT/self.nrows, self.grid_screen_ratio*SCREEN_WIDTH/self.ncols))
 
         for i,j in loop_through_grid(self.nrows, self.ncols):
             if letter_grid[i][j] == ' ':
@@ -131,7 +132,7 @@ class Grid:
                         if (self.tile_grid[i-1][j].actual_letter != ''): self.tile_grid[i][j].is_vertical = True
                     # check the last column
                     elif j == self.tile_grid.shape[1] - 1:
-                        print('checking the last column of the last row:', i, j)
+                        # print('checking the last column of the last row:', i, j)
                         if (self.tile_grid[i][j-1].actual_letter != ''): self.tile_grid[i][j].is_horizontal = True
                         if (self.tile_grid[i-1][j].actual_letter != ''): self.tile_grid[i][j].is_vertical = True
                                 # setting last row, last column as vertical
@@ -167,6 +168,83 @@ class Grid:
                 self.tile_grid[i][j].background_color = COLOR_BLANK_TILE
         # self.printTiles()
 
+    # the following function returns two dictionaries:
+    # words and their corresponding numbers for horizontal and vertical words
+
+    # go through the grid with the iterator? 
+    # restart the word with every new number! 
+
+    # use horizontal iterator to find horizontal words
+    # use vertical iterator to find vertical words
+
+    # each new word starts with a number
+    def getWords(self):
+        # horizontal_grid_loop = cycle_grid_horizontally(self.nrows, self.ncols)
+        # vertical_grid_loop = cycle_grid_vertically(self.nrows, self.ncols)
+
+        horizontal_nums, vertical_nums = [], []
+        horizontal_words, vertical_words = [], []
+        horizontal_word, vertical_word = '', ''
+        for i,j in loop_through_grid(self.nrows, self.ncols):
+            # print("Going through", (i,j))
+            # we encounter the first tile of a horizontal word (which has a number)
+            if (self.tile_grid[i][j].number != '') and (self.tile_grid[i][j].is_horizontal) and (horizontal_word == ''):
+                horizontal_nums.append(int(self.tile_grid[i][j].number))
+                horizontal_word += self.tile_grid[i][j].actual_letter
+                # print('start of horizontal word:', horizontal_word)
+
+            # we encounter a tile that is part of the horizontal word (not an blank tile)
+            # a separate case needs to be created for the end of the row, since that requires us to end the word
+            elif (self.tile_grid[i][j].actual_letter != '') and (horizontal_word != '') and (j != self.ncols - 1):
+                horizontal_word += self.tile_grid[i][j].actual_letter
+
+            # we encounter a blank tile, signaling the end of the current word
+            # OR we encounter the end of the a row, also signaling the end of the current word
+            elif (self.tile_grid[i][j].actual_letter == '') or (j == self.ncols - 1):
+                if (j == self.ncols - 1) and (horizontal_word != ''):
+                    horizontal_word += self.tile_grid[i][j].actual_letter
+                    # print("reached end of row, adding horizontal word", horizontal_word, "to list with j =", j)
+                    horizontal_words.append(horizontal_word)
+                    horizontal_word = ''
+                elif (self.tile_grid[i][j].actual_letter == '') and (horizontal_word != ''):
+                    horizontal_words.append(horizontal_word)
+                    horizontal_word = ''
+
+        # loop through the grid vertically, switch nrows and ncols
+        # switch horizontal to vertical variables
+        for j,i in loop_through_grid(self.nrows, self.ncols):
+            # print("Going through", (i,j))
+
+            #(0,0), (1,0)... (1,14),(0,1)...
+            # we encounter the first tile of a horizontal word (which has a number)
+            if (self.tile_grid[i][j].number != '') and (self.tile_grid[i][j].is_vertical) and (vertical_word == ''):
+                vertical_nums.append(int(self.tile_grid[i][j].number))
+                vertical_word += self.tile_grid[i][j].actual_letter
+                # print('start of vertical word:', vertical_word)
+
+            # we encounter a tile that is part of the horizontal word (not an blank tile)
+            # a separate case needs to be created for the end of the col, since that requires us to end the word
+            elif (self.tile_grid[i][j].actual_letter != '') and (vertical_word != '') and (i != self.ncols - 1):
+                vertical_word += self.tile_grid[i][j].actual_letter
+
+            # we encounter a blank tile, signaling the end of the current word
+            # OR we encounter the end of the a col, also signaling the end of the current word
+            elif (self.tile_grid[i][j].actual_letter == '') or (i == self.ncols - 1):
+                if (i == self.ncols - 1) and (vertical_word != ''):
+                    vertical_word += self.tile_grid[i][j].actual_letter
+                    # print("reached end of col, adding vertical word", vertical_word, "to list with i =", i)
+                    vertical_words.append(vertical_word)
+                    vertical_word = ''
+                elif (self.tile_grid[i][j].actual_letter == '') and (vertical_word != ''):
+                    vertical_words.append(vertical_word)
+                    vertical_word = ''
+        
+        horizontal_dict = dict(zip(horizontal_nums, horizontal_words))
+        vertical_dict = dict(zip(vertical_nums, vertical_words))
+        # sort the dictionary in order of numerical keys
+        vertical_dict = dict(sorted(vertical_dict.items()))
+        return horizontal_dict, vertical_dict
+    
     # this sets the clue numbers for each word
     # we number only the first tile of each word
     def setNumbers(self):
@@ -369,8 +447,8 @@ class Grid:
                 self.tile_grid[k][j].background_color = COLOR_ACTIVE_WORD
             else: break
 
-    # bug: when going to the next row, it still 'thinks' the 
-    # tile at the end of the row is active
+    # these two functions set the next horizontal/vertical tiles
+    # allowing arrow key functionality within the game
 
     def setNextHorizontalTile(self, m, n, forward = True):
         if forward == True:
@@ -379,34 +457,34 @@ class Grid:
         else:
             # print("setting up backward loop...")
             grid_loop = cycle_grid_horizontally(self.nrows, self.ncols, backwards = True)
-        ## warning! this loops forever so make sure breaks are in place
+
+        # get to the current tile indices in the grid_loop iterator
         for i,j in grid_loop:
             # print("setting position in grid_loop")
             if (i == m) and (j == n):
                 break
 
-        # get the loop to the right point!
         for i,j in grid_loop:
             
             # if you are at the end of a row of a horizontal word
             # print("testing (i,j) value to set next horizontal tile:", (i,j))
 
             # the first letter will never be the next horizontal letter... 
-            # ... but the next letter could be, so program this as if it is! 
+            # ... but the next letter could be
             if self.tile_grid[i][j].actual_letter != '':
                 # going to the next tile
-                # the next tile is either part of the same word
+                # if the next tile is part of the same word
                 if self.tile_grid[i][j].is_horizontal:
                     self.resetTiles()
                     # print("setting this tile horizontal:", (i,j))
                     self.setHorizontalTiles(i,j)
                     # print("tiles look like after setting horizontal tiles:")
-                    self.printTiles()
+                    # self.printTiles()
                     break
                 # we could be moving from blank tile to a vertical tile 
                 elif self.tile_grid[i][j].is_vertical:
                     self.resetTiles()
-                    print("setting the next tile vertical:", (i,j))
+                    # print("setting the next tile vertical:", (i,j))
                     self.setVerticalTiles(i,j)
                     break
                 # not sure how this situation is possible
@@ -426,16 +504,16 @@ class Grid:
             vertical_grid_loop = cycle_grid_vertically(self.ncols, self.nrows, backwards = True)
         ## warning! this loops forever so make sure breaks are in place
         for i,j in vertical_grid_loop:
-            print("Testing position:", (i,j))
+            # print("Testing position:", (i,j))
             if (i == m) and (j == n):
-                print("found current vertical position:", (i,j))
+                # print("found current vertical position:", (i,j))
                 break
 
         # get the loop to the right point!
         for i,j in vertical_grid_loop:
             
             # if you are at the end of a row of a horizontal word
-            print("testing (i,j) value to set next vertical tile:", (i,j))
+            # print("testing (i,j) value to set next vertical tile:", (i,j))
 
             # the first letter will never be the next horizontal letter... 
             # ... but the next letter could be, so program this as if it is! 
@@ -471,7 +549,7 @@ class Grid:
                     #### get the previous tile 
                     if self.row_col_tuple != (None, None):
                         (m,n) = self.row_col_tuple
-                        print(self.row_col_tuple)
+                        # print(self.row_col_tuple)
                         #### set previous tile inactive
                         self.tile_grid[m][n].active = False
                     ####
@@ -539,7 +617,7 @@ class Grid:
                 else:
                     continue
 
-            self.printTiles()    
+            # self.printTiles()    
 
         # typing in a letter takes you to the next tile for whatever direction you are are going
         elif event.type == pg.KEYDOWN:
@@ -550,7 +628,7 @@ class Grid:
                     if pg.K_a <= event.key <= pg.K_z:
                         # set the tile to the letter and move forward
                         # print("setting", (i,j), "to the letter:", event.unicode)
-                        self.tile_grid[i][j].disp_letter = event.unicode
+                        self.tile_grid[i][j].disp_letter = event.unicode.capitalize()
 
                         # if you are on a tile that is part of a horizontal word...
                         if self.tile_grid[i][j].active_horizontal == True:
@@ -558,7 +636,7 @@ class Grid:
                             self.setNextHorizontalTile(i,j)
                             # after this point the tile from the previous row and the next tile are active
                             # when NEITHER should be active
-                            self.printTiles()
+                            # self.printTiles()
                         elif self.tile_grid[i][j].active_vertical == True:
                             # switching i and j should change the behavior to vertical!
                             self.setNextVerticalTile(i,j)
