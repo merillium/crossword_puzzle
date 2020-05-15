@@ -4,7 +4,7 @@ from itertools import cycle
 from Tile import Tile
 
 pg.init()
-SCREEN_WIDTH = 2000
+SCREEN_WIDTH = 1400
 SCREEN_HEIGHT = 900
 COLOR_BLANK_TILE = pg.Color('black')
 COLOR_INACTIVE_TILE = pg.Color('white')
@@ -35,7 +35,8 @@ def loop_through_grid(m_end, n_end, m_start = 0, n_start = 0):
         for j in range(n_start, n_end):
             yield i, j
 
-# this creates an iterator to go forward through the (i,j) index
+# the following two "cycle" functions create an iterator to go forward through the (i,j) index 
+# and cycle through from the last tile to the starting tile
 # Note: by switching start and end, we can make the iterator go backwards
 def cycle_grid_horizontally(m_end, n_end, m_start = 0, n_start = 0, backwards = False):
     if backwards == True:
@@ -150,7 +151,7 @@ class Grid:
                     if (self.tile_grid[i-1][j].actual_letter != '') or (self.tile_grid[i+1][j].actual_letter != ''):
                         self.tile_grid[i][j].is_vertical = True
 
-                    # check last column, interior rows
+                # check last column, interior rows
                 elif j == self.tile_grid.shape[1] - 1:
                     if self.tile_grid[i][j-1].actual_letter != '': self.tile_grid[i][j].is_horizontal = True
                     if (self.tile_grid[i-1][j].actual_letter != '') or (self.tile_grid[i+1][j].actual_letter != ''):
@@ -169,19 +170,10 @@ class Grid:
         # self.printTiles()
 
     # the following function returns two dictionaries:
-    # words and their corresponding numbers for horizontal and vertical words
-
-    # go through the grid with the iterator? 
-    # restart the word with every new number! 
-
-    # use horizontal iterator to find horizontal words
-    # use vertical iterator to find vertical words
+    # clue numbers with their corresponding word for horizontal and vertical words
 
     # each new word starts with a number
     def getWords(self):
-        # horizontal_grid_loop = cycle_grid_horizontally(self.nrows, self.ncols)
-        # vertical_grid_loop = cycle_grid_vertically(self.nrows, self.ncols)
-
         horizontal_nums, vertical_nums = [], []
         horizontal_words, vertical_words = [], []
         horizontal_word, vertical_word = '', ''
@@ -210,12 +202,12 @@ class Grid:
                     horizontal_words.append(horizontal_word)
                     horizontal_word = ''
 
-        # loop through the grid vertically, switch nrows and ncols
+        # loop through the grid vertically, switch (i,j) to (j,i)
         # switch horizontal to vertical variables
         for j,i in loop_through_grid(self.nrows, self.ncols):
             # print("Going through", (i,j))
 
-            #(0,0), (1,0)... (1,14),(0,1)...
+            # (0,0), (1,0), (2,0)... (0,14), (0,1), (1,1)... (1,14)...
             # we encounter the first tile of a horizontal word (which has a number)
             if (self.tile_grid[i][j].number != '') and (self.tile_grid[i][j].is_vertical) and (vertical_word == ''):
                 vertical_nums.append(int(self.tile_grid[i][j].number))
@@ -494,7 +486,7 @@ class Grid:
 
             # the next tile is a blank letter OR we are looping around again
             else:
-                print("next tile is blank")
+                # print("next tile is blank")
                 continue  
 
     def setNextVerticalTile(self, m, n, forward = True): 

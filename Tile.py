@@ -3,7 +3,7 @@ import pygame as pg
 
 # define pg parameters
 pg.init()
-SCREEN_WIDTH = 1800
+SCREEN_WIDTH = 1400
 SCREEN_HEIGHT = 900
 COLOR_BLANK_TILE = pg.Color('black')
 COLOR_INACTIVE_TILE = pg.Color('white')
