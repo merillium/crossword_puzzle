@@ -3,7 +3,7 @@
 ###### pip3 install pygame
 
 ###### Then clone this directory locally and type the following commands into terminal: (the first command increases the limit on the number of open files from the MacBook Air default of 256):
-###### set ulimit 1000
+###### ulimit -n 1000
 ###### python3 -i main.py
 
 ##### Features that need to be added: 
