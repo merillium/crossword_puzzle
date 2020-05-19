@@ -14,5 +14,4 @@
 
 ##### ** This is a work in a progress! Check back for updates **
 
-###### References: 
 [1] https://nytcrosswordanswers.com/612009/new-york-times-crossword-february-28-2020-answers/
