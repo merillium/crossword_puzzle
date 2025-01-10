@@ -1,2 +1,9 @@
 **/__pycache__
 **.DS_Store
+*.wav
+*.mp3
+*.pyc
+*.egg-info
+*-pygbag.???
+/build
+/dist

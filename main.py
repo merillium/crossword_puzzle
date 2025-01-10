@@ -1,3 +1,4 @@
+import asyncio
 import numpy as np
 import pygame as pg
 from Grid import Grid
@@ -10,7 +11,7 @@ SCREEN_HEIGHT = 900
 screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 
-if __name__ == '__main__':
+async def main():
     clock = pg.time.Clock()
     done = False
 
@@ -121,6 +122,10 @@ if __name__ == '__main__':
             sample_grid.handle_event(event)
 
             pg.display.flip()
-            clock.tick(30)
+            
+        clock.tick(30)
+        await asyncio.sleep(0)
 
     pg.quit()
+
+asyncio.run(main())
